@@ -6,15 +6,19 @@ const sleep = (seconds) =>
   new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 
 const headers = {
-  headers: {
-    Authorization: `Bearer ${core.getInput("token")}`,
-  },
+  Authorization: `Bearer ${core.getInput("token")}`,
 }
 
 async function getProdUrl(sha) {
-  const prodUrl = core.getInput("prod-url", { required: true })
-  const url = `https://api.vercel.com/v11/now/deployments/get?url=${prodUrl}`
-  const { data } = await axios.get(url, headers)
+  const url = "https://api.vercel.com/v11/now/deployments/get"
+  const params = {
+    url: core.getInput("prod-url", { required: true }),
+    teamId: core.getInput("team-id"),
+  }
+  const { data } = await axios.get(url, {
+    params,
+    headers,
+  })
 
   if (data.meta.githubCommitSha === sha) {
     throw new Error("Commit sha for prod url didn't match")
@@ -24,9 +28,19 @@ async function getProdUrl(sha) {
 }
 
 async function getBranchUrl(sha) {
-  const url = `https://api.vercel.com/v5/now/deployments?meta-githubCommitSha=${sha}`
-  const { data } = await axios.get(url, headers)
+  const url = "https://api.vercel.com/v5/now/deployments"
+  const params = {
+    "meta-githubCommitSha": sha,
+    teamId: core.getInput("team-id"),
+  }
+  const { data } = await axios.get(url, {
+    params,
+    headers,
+  })
 
+  if (!data.deployments.length) {
+    throw new Error("No matching deployments")
+  }
   // If the deployment isn't in the response, this will throw an error and
   // cause a retry.
   return data.deployments[0].url
