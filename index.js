@@ -50,7 +50,8 @@ function getDeployment(sha) {
 }
 
 function checkDeployment(deployment) {
-  if (deployment.state !== "READY") {
+  const status = deployment.status || deployment.state
+  if (status !== "READY") {
     throw new Error("Deployment isn't ready")
   }
 }
