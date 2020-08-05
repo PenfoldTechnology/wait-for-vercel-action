@@ -20,7 +20,7 @@ async function getProdDeployment(sha) {
     headers,
   })
 
-  if (data.meta.githubCommitSha === sha) {
+  if (data.meta.githubCommitSha !== sha) {
     throw new Error("Commit sha for prod url didn't match")
   }
   return data
