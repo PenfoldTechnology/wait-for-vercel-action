@@ -9,7 +9,7 @@ const headers = {
   Authorization: `Bearer ${core.getInput("token")}`,
 }
 
-async function getProdUrl(sha) {
+async function getProdDeployment(sha) {
   const url = "https://api.vercel.com/v11/now/deployments/get"
   const params = {
     url: core.getInput("prod-url", { required: true }),
@@ -23,11 +23,10 @@ async function getProdUrl(sha) {
   if (data.meta.githubCommitSha === sha) {
     throw new Error("Commit sha for prod url didn't match")
   }
-
-  return data.url
+  return data
 }
 
-async function getBranchUrl(sha) {
+async function getBranchDeployment(sha) {
   const url = "https://api.vercel.com/v5/now/deployments"
   const params = {
     "meta-githubCommitSha": sha,
@@ -41,15 +40,19 @@ async function getBranchUrl(sha) {
   if (!data.deployments.length) {
     throw new Error("No matching deployments")
   }
-  // If the deployment isn't in the response, this will throw an error and
-  // cause a retry.
-  return data.deployments[0].url
+  return data.deployments[0]
 }
 
-function getUrl(sha) {
+function getDeployment(sha) {
   return github.context.payload.ref === "refs/heads/master"
-    ? getProdUrl(sha)
-    : getBranchUrl(sha)
+    ? getProdDeployment(sha)
+    : getBranchDeployment(sha)
+}
+
+function checkDeployment(deployment) {
+  if (deployment.state !== "READY") {
+    throw new Error("Deployment isn't ready")
+  }
 }
 
 async function waitForDeployment() {
@@ -61,7 +64,9 @@ async function waitForDeployment() {
 
   while (new Date().getTime() < endTime) {
     try {
-      return `http://${await getUrl(sha)}`
+      const deployment = await getDeployment(sha)
+      checkDeployment(deployment)
+      return `http://${deployment.url}`
     } catch (e) {
       core.debug("Failed: ", e)
       console.log(`Url unavailable. Attempt ${attempt++}.`)
