@@ -66,7 +66,7 @@ async function waitForDeployment() {
     try {
       const deployment = await getDeployment(sha)
       checkDeployment(deployment)
-      return `http://${deployment.url}`
+      return `https://${deployment.url}`
     } catch (e) {
       core.debug("Failed: ", e)
       console.log(`Url unavailable. Attempt ${attempt++}.`)
