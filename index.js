@@ -63,6 +63,7 @@ async function waitForDeployment() {
     try {
       return `http://${await getUrl(sha)}`
     } catch (e) {
+      core.debug("Failed: ", e)
       console.log(`Url unavailable. Attempt ${attempt++}.`)
       await sleep(2)
     }
