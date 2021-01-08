@@ -17,6 +17,9 @@ inputs:
     description: The max time to run the action (in seconds)
     required: false
     default: "120"
+  commit-id:
+    description: Git commit SHA
+    required: false
 outputs:
   url:
     description: The fully qualified deployment URL
