@@ -57,10 +57,7 @@ function checkDeployment(deployment) {
 }
 
 async function waitForDeployment() {
-  let sha = core.getInput('commit-id')
-  if (!sha) {
-    sha = github.context.payload.head_commit.id
-  }
+  const sha = core.getInput('commit-id') || github.context.payload.head_commit.id
   const timeout = +core.getInput("timeout") * 1000
   const endTime = new Date().getTime() + timeout
 
