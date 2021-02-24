@@ -9,24 +9,7 @@ const headers = {
   Authorization: `Bearer ${core.getInput("token")}`,
 }
 
-async function getProdDeployment(sha) {
-  const url = "https://api.vercel.com/v11/now/deployments/get"
-  const params = {
-    url: core.getInput("prod-url", { required: true }),
-    teamId: core.getInput("team-id"),
-  }
-  const { data } = await axios.get(url, {
-    params,
-    headers,
-  })
-
-  if (data.meta.githubCommitSha !== sha) {
-    throw new Error("Commit sha for prod url didn't match")
-  }
-  return data
-}
-
-async function getBranchDeployment(sha) {
+async function getDeployment(sha) {
   const url = "https://api.vercel.com/v5/now/deployments"
   const params = {
     "meta-githubCommitSha": sha,
@@ -41,12 +24,6 @@ async function getBranchDeployment(sha) {
     throw new Error("No matching deployments")
   }
   return data.deployments[0]
-}
-
-function getDeployment(sha) {
-  return github.context.payload.ref === "refs/heads/master"
-    ? getProdDeployment(sha)
-    : getBranchDeployment(sha)
 }
 
 function checkDeployment(deployment) {
