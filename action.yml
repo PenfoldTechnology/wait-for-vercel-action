@@ -20,6 +20,9 @@ inputs:
   commit-id:
     description: Git commit SHA
     required: false
+  project-id:
+    description: Vercel project ID
+    required: true
 outputs:
   url:
     description: The fully qualified deployment URL

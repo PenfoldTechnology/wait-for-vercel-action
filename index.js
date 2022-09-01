@@ -14,6 +14,7 @@ async function getDeployment(sha) {
   const params = {
     "meta-githubCommitSha": sha,
     teamId: core.getInput("team-id"),
+    projectId: core.getInput("project-id"),
   }
   const { data } = await axios.get(url, {
     params,
