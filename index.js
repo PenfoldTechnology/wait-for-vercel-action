@@ -44,11 +44,12 @@ async function waitForDeployment() {
   while (new Date().getTime() < endTime) {
     try {
       const deployment = await getDeployment(sha)
+      console.log(deployment)
       checkDeployment(deployment)
       return `https://${deployment.url}`
-    } catch (e) {
-      core.debug(`Failed: ${e.message}`)
+    } catch (err) {
       console.log(`Url unavailable. Attempt ${attempt++}.`)
+      console.log(err)
       await sleep(2)
     }
   }
@@ -59,7 +60,6 @@ async function waitForDeployment() {
 ;(async () => {
   try {
     const url = await waitForDeployment()
-
     console.log("Url found!", url)
     core.setOutput("url", url)
   } catch (err) {
