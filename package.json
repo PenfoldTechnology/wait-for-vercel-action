@@ -19,5 +19,8 @@
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
     "axios": "^0.19.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
   }
 }
