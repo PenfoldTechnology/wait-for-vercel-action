@@ -10,12 +10,12 @@ const headers = {
   Authorization: `Bearer ${core.getInput("token")}`,
 }
 
-async function getDeployment(sha) {
+async function getDeployment(sha, projectId) {
   const url = "https://api.vercel.com/v5/now/deployments"
   const params = {
     "meta-githubCommitSha": sha,
     teamId: core.getInput("team-id"),
-    projectId: core.getInput("project-id"),
+    projectId,
   }
   const { data } = await axios.get(url, { params, headers })
   if (!data.deployments.length) {
@@ -42,13 +42,14 @@ function getSha() {
 
 async function waitForDeployment() {
   const sha = getSha()
+  const projectId = core.getInput("project-id", { required: true })
   const timeout = +core.getInput("timeout") * 1000
   const endTime = new Date().getTime() + timeout
   let attempt = 1
 
   while (new Date().getTime() < endTime) {
     try {
-      const deployment = await getDeployment(sha)
+      const deployment = await getDeployment(sha, projectId)
       checkDeployment(deployment)
       return `https://${deployment.url}`
     } catch (err) {
